@@ -2,97 +2,125 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<title>XG Premium TikTok Downloader</title>
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>XG TikTok Downloader</title>
 
 <style>
+
 body{
-    font-family: Arial, sans-serif;
+    font-family: Arial, Helvetica, sans-serif;
     background: linear-gradient(135deg,#ff0050,#000);
     color:white;
     text-align:center;
-    padding:40px;
+    padding:30px;
 }
 
+/* Premium Card Design */
 .container{
-    background: rgba(0,0,0,0.6);
+    background: rgba(0,0,0,0.65);
     padding:30px;
-    border-radius:15px;
+    border-radius:25px;
     max-width:500px;
     margin:auto;
+    box-shadow:0 0 25px rgba(0,0,0,0.5);
 }
 
+/* Input Box */
 input{
     width:90%;
-    padding:12px;
+    padding:14px;
     border:none;
-    border-radius:8px;
+    border-radius:12px;
     margin-top:15px;
+    font-size:16px;
 }
 
+/* Button Style */
 button{
-    margin-top:15px;
-    padding:12px 25px;
+    margin-top:20px;
+    padding:14px 30px;
     border:none;
-    border-radius:8px;
+    border-radius:12px;
     background:#00f2ea;
     font-weight:bold;
+    font-size:16px;
     cursor:pointer;
+    transition:0.3s;
 }
 
 button:hover{
     background:white;
 }
 
-#result{
+/* Status Text */
+#status{
     margin-top:20px;
-}
-a{
-    color:#00f2ea;
     font-weight:bold;
 }
+
 </style>
 
 </head>
+
 <body>
 
 <div class="container">
-    <h2>🔥 XG TikTok Downloader</h2>
-    <input type="text" id="url" placeholder="Paste TikTok Video Link">
-    <br>
-    <button onclick="download()">Download</button>
 
-    <div id="result"></div>
+<h2>🔥 XG Premium TikTok Downloader</h2>
+
+<p>Paste TikTok Video Link Below</p>
+
+<input type="text" id="url" placeholder="Enter TikTok Video Link">
+
+<br>
+
+<button onclick="downloadVideo()">⬇ Download Now</button>
+
+<p id="status"></p>
+
 </div>
 
 <script>
-async function download(){
 
-    const url = document.getElementById("url").value;
+async function downloadVideo(){
 
-    if(!url){
-        alert("Paste TikTok Link First");
-        return;
-    }
+const url = document.getElementById("url").value;
 
-    const api = "https://api-26sm.onrender.com/api?url="
-                + encodeURIComponent(url)
-                + "&apikey=xg_superfast_2026";
-
-    const res = await fetch(api);
-    const data = await res.json();
-
-    if(data.error){
-        document.getElementById("result").innerHTML = "❌ Video Not Found";
-        return;
-    }
-
-    document.getElementById("result").innerHTML = `
-        <p><b>${data.title}</b></p>
-        <p>By: ${data.author}</p>
-        <a href="${data.nowm}" target="_blank">⬇ Download No Watermark</a>
-    `;
+if(!url){
+alert("Please Paste TikTok Link");
+return;
 }
+
+document.getElementById("status").innerText="Processing Download...";
+
+const api = "https://api-26sm.onrender.com/api?url="
++ encodeURIComponent(url)
++ "&apikey=xg_superfast_2026";
+
+const res = await fetch(api);
+const data = await res.json();
+
+if(data.nowm){
+
+// ⭐ Direct Download Start
+const a = document.createElement("a");
+a.href = data.nowm;
+a.download = "tiktok_video.mp4";
+document.body.appendChild(a);
+a.click();
+a.remove();
+
+document.getElementById("status").innerText="✅ Download Started!";
+
+}else{
+
+document.getElementById("status").innerText="❌ Video Not Found";
+
+}
+
+}
+
 </script>
 
 </body>
