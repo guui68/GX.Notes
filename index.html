@@ -3,187 +3,96 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>XG Notes</title>
+<title>XG TikTok Downloader</title>
 
 <style>
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:Arial, sans-serif;
-}
-
 body{
-background:#f5f5f5;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg,#ff0050,#000);
+    color:white;
+    text-align:center;
+    padding:40px;
 }
 
-/* Header */
-.header{
-display:flex;
-align-items:center;
-justify-content:space-between;
-padding:15px;
-background:white;
-box-shadow:0 2px 8px rgba(0,0,0,0.08);
-font-size:20px;
-font-weight:bold;
+.container{
+    background: rgba(0,0,0,0.6);
+    padding:30px;
+    border-radius:15px;
+    max-width:500px;
+    margin:auto;
 }
 
-/* Grid */
-.notes{
-display:grid;
-grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
-gap:15px;
-padding:15px;
+input{
+    width:90%;
+    padding:12px;
+    border:none;
+    border-radius:8px;
+    margin-top:15px;
 }
 
-.note-card{
-background:white;
-padding:15px;
-border-radius:18px;
-box-shadow:0 2px 8px rgba(0,0,0,0.08);
-cursor:pointer;
-min-height:120px;
-display:flex;
-flex-direction:column;
-justify-content:space-between;
+button{
+    margin-top:15px;
+    padding:12px 25px;
+    border:none;
+    border-radius:8px;
+    background:#00f2ea;
+    font-weight:bold;
+    cursor:pointer;
 }
 
-.note-card small{
-color:gray;
-font-size:12px;
-margin-top:10px;
+button:hover{
+    background:white;
 }
 
-/* Floating Button */
-.fab{
-position:fixed;
-bottom:25px;
-right:25px;
-width:60px;
-height:60px;
-border-radius:50%;
-background:#ff5722;
-border:none;
-color:white;
-font-size:26px;
-box-shadow:0 4px 12px rgba(0,0,0,0.3);
-cursor:pointer;
+#result{
+    margin-top:20px;
 }
-
-/* Editor Screen */
-.editor{
-position:fixed;
-inset:0;
-background:white;
-display:none;
-flex-direction:column;
-}
-
-.editor textarea{
-flex:1;
-border:none;
-padding:20px;
-font-size:16px;
-outline:none;
-}
-
-.editor-header{
-display:flex;
-justify-content:space-between;
-align-items:center;
-padding:15px;
-box-shadow:0 2px 8px rgba(0,0,0,0.08);
-}
-
-.editor button{
-border:none;
-background:none;
-font-size:16px;
-cursor:pointer;
-color:#ff5722;
+a{
+    color:#00f2ea;
+    font-weight:bold;
 }
 </style>
+
 </head>
 <body>
 
-<div class="header">
-All notes
-</div>
+<div class="container">
+    <h2>🔥 XG TikTok Downloader</h2>
+    <input type="text" id="url" placeholder="Paste TikTok Video Link">
+    <br>
+    <button onclick="download()">Download</button>
 
-<div id="notesContainer" class="notes"></div>
-
-<button class="fab" onclick="createNote()">+</button>
-
-<!-- Editor -->
-<div id="editor" class="editor">
-<div class="editor-header">
-<button onclick="closeEditor()">Back</button>
-<button onclick="deleteNote()">Delete</button>
-</div>
-<textarea id="noteText" placeholder="Start writing..."></textarea>
+    <div id="result"></div>
 </div>
 
 <script>
+async function download(){
 
-let notes = JSON.parse(localStorage.getItem("xg_notes")) || [];
-let currentIndex = null;
+    const url = document.getElementById("url").value;
 
-function saveStorage(){
-localStorage.setItem("xg_notes", JSON.stringify(notes));
+    if(!url){
+        alert("Paste TikTok Link First");
+        return;
+    }
+
+    const api = "https://api-26sm.onrender.com/api?url="
+                + encodeURIComponent(url)
+                + "&apikey=xg_superfast_2026";
+
+    const res = await fetch(api);
+    const data = await res.json();
+
+    if(data.error){
+        document.getElementById("result").innerHTML = "❌ Video Not Found";
+        return;
+    }
+
+    document.getElementById("result").innerHTML = `
+        <p><b>${data.title}</b></p>
+        <p>By: ${data.author}</p>
+        <a href="${data.nowm}" target="_blank">⬇ Download No Watermark</a>
+    `;
 }
-
-function renderNotes(){
-const container=document.getElementById("notesContainer");
-container.innerHTML="";
-
-notes.sort((a,b)=>b.time-a.time);
-
-notes.forEach((note,index)=>{
-let div=document.createElement("div");
-div.className="note-card";
-div.innerHTML=`
-<div>${note.text.substring(0,100)}</div>
-<small>${new Date(note.time).toLocaleDateString()}</small>
-`;
-div.onclick=()=>openEditor(index);
-container.appendChild(div);
-});
-}
-
-function createNote(){
-notes.unshift({text:"", time:Date.now()});
-currentIndex=0;
-openEditor(0);
-}
-
-function openEditor(index){
-currentIndex=index;
-document.getElementById("noteText").value=notes[index].text;
-document.getElementById("editor").style.display="flex";
-}
-
-function closeEditor(){
-if(currentIndex!==null){
-notes[currentIndex].text=document.getElementById("noteText").value;
-notes[currentIndex].time=Date.now();
-saveStorage();
-renderNotes();
-}
-document.getElementById("editor").style.display="none";
-}
-
-function deleteNote(){
-if(currentIndex!==null){
-notes.splice(currentIndex,1);
-saveStorage();
-renderNotes();
-}
-document.getElementById("editor").style.display="none";
-}
-
-renderNotes();
-
 </script>
 
 </body>
