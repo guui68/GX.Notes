@@ -1,94 +1,59 @@
-<!DOCTYPE html>
-<html lang="bn">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ইন্সটাগ্রাম ভিডিও ডাউনলোডার</title>
-    <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-align: center; background-color: #fafafa; padding: 20px; }
-        .container { max-width: 500px; margin: 40px auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        h2 { color: #e1306c; }
-        input[type="text"] { width: 90%; padding: 12px; margin-top: 20px; border: 1px solid #ddd; border-radius: 25px; outline: none; }
-        button { padding: 12px 25px; margin-top: 20px; background-color: #e1306c; color: white; border: none; border-radius: 25px; cursor: pointer; font-size: 16px; transition: 0.3s; }
-        button:hover { background-color: #c13584; }
-        #result { margin-top: 30px; }
-        .loader { display: none; margin: 20px auto; border: 4px solid #f3f3f3; border-top: 4px solid #e1306c; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        a { text-decoration: none; }
-    </style>
-</head>
-<body>
-
-    <div class="container">
-        <h2>📷 ইন্সটাগ্রাম ডাউনলোডার</h2>
-        <p>ভিডিওর লিঙ্কটি পেস্ট করুন</p>
-        <input type="text" id="videoUrl" placeholder="https://www.instagram.com/reel/...">
-        <br>
-        <button onclick="downloadVideo()">ডাউনলোড লিঙ্ক আনুন</button>
+<script>
+    async function downloadVideo() {
+        const urlInput = document.getElementById('videoUrl').value;
+        const resultDiv = document.getElementById('result');
+        const loader = document.getElementById('loader');
         
-        <div class="loader" id="loader"></div>
-        <div id="result"></div>
-    </div>
-
-    <script>
-        async function downloadVideo() {
-            const urlInput = document.getElementById('videoUrl').value;
-            const resultDiv = document.getElementById('result');
-            const loader = document.getElementById('loader');
-            
-            if (!urlInput) {
-                alert("দয়া করে একটি লিঙ্ক পেস্ট করুন");
-                return;
-            }
-
-            resultDiv.innerHTML = "";
-            loader.style.display = "block";
-
-            // --- API সেটআপ ---
-            const apiKey = 'c7111d53a3mshd5e404dc3c025d3p12614djsn594c67457ff9'; 
-            const apiUrl = 'https://instagram120.p.rapidapi.com/api/instagram/posts';
-
-            // ভিডিওর লিঙ্ক থেকে আইডি বের করার লজিক বা API-এর চাহিদা অনুযায়ী ডাটা
-            // বেশিরভাগ ভিডিও ডাউনলোডার API ভিডিওর URL চায়, ইউজারনেম নয়।
-            const requestData = {
-                "url": urlInput // লিঙ্ক পাঠাচ্ছি
-            };
-
-            try {
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'x-rapidapi-host': 'instagram120.p.rapidapi.com',
-                        'x-rapidapi-key': apiKey
-                    },
-                    body: JSON.stringify(requestData)
-                });
-
-                const data = await response.json();
-                loader.style.display = "none";
-                
-                console.log(data); // কনসোলে ডাটা দেখুন
-
-                // --- API রেসপন্স অনুযায়ী ডাউনলোডের লিঙ্ক দেখানো ---
-                // নোট: ডাটার ফরম্যাট API ভেদে ভিন্ন হয়।
-                if (data.downloadUrl || data.url) {
-                    const downloadLink = data.downloadUrl || data.url;
-                    resultDiv.innerHTML = `
-                        <p style="color: green;">ভিডিও পাওয়া গেছে!</p>
-                        <a href="${downloadLink}" target="_blank">
-                            <button style="background-color: #28a745;">ভিডিও ডাউনলোড করুন</button>
-                        </a>
-                    `;
-                } else {
-                    resultDiv.innerHTML = "<p style='color: red;'>ভিডিও পাওয়া যায়নি। লিঙ্কটি সঠিক কিনা চেক করুন।</p>";
-                }
-            } catch (error) {
-                loader.style.display = "none";
-                resultDiv.innerHTML = "<p style='color: red;'>এরর হয়েছে। API কাজ করছে না।</p>";
-                console.error(error);
-            }
+        if (!urlInput) {
+            alert("দয়া করে একটি লিঙ্ক পেস্ট করুন");
+            return;
         }
-    </script>
-</body>
-</html>
+
+        resultDiv.innerHTML = "";
+        loader.style.display = "block";
+
+        // --- API সেটআপ ---
+        const apiKey = 'c7111d53a3mshd5e404dc3c025d3p12614djsn594c67457ff9'; 
+        
+        // ভিডিওর আইডি বের করার চেষ্টা (লিঙ্ক থেকে)
+        const parts = urlInput.split('/');
+        const shortcode = parts[parts.length - 2]; 
+
+        // নতুন এন্ডপয়েন্ট: mediaByShortcode
+        const apiUrl = `https://instagram120.p.rapidapi.com/api/instagram/mediaByShortcode?shortcode=${shortcode}`;
+
+        try {
+            const response = await fetch(apiUrl, {
+                method: 'GET', // GET মেথড ব্যবহার করা হচ্ছে
+                headers: {
+                    'x-rapidapi-host': 'instagram120.p.rapidapi.com',
+                    'x-rapidapi-key': apiKey
+                }
+            });
+
+            const data = await response.json();
+            loader.style.display = "none";
+            
+            console.log(data); // ব্রাউজারের কনসোলে কী ডেটা আসছে তা দেখুন
+
+            // --- API রেসপন্স অনুযায়ী ডাউনলোডের লিঙ্ক দেখানো ---
+            // এই ডাটা স্ট্রাকচার API-এর ওপর নির্ভর করে
+            if (data.media && data.media.video_versions) {
+                const downloadLink = data.media.video_versions[0].url; // সবচেয়ে ভালো কোয়ালিটি
+                resultDiv.innerHTML = `
+                    <p style="color: green;">ভিডিও পাওয়া গেছে!</p>
+                    <a href="${downloadLink}" target="_blank">
+                        <button style="background-color: #28a745;">ভিডিও ডাউনলোড করুন</button>
+                    </a>
+                `;
+            } else {
+                resultDiv.innerHTML = "<p style='color: red;'>ভিডিও পাওয়া যায়নি। লিঙ্কটি সঠিক কিনা চেক করুন।</p>";
+            }
+        } catch (error) {
+            loader.style.display = "none";
+            resultDiv.innerHTML = "<p style='color: red;'>এরর হয়েছে। API কাজ করছে না।</p>";
+            console.error(error);
+        }
+    }
+                    </script>
+                    
