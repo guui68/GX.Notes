@@ -2,61 +2,51 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>XG Premium TikTok Downloader</title>
-
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Premium Instagram Downloader</title>
 
 <style>
 
 body{
-    font-family: Arial, Helvetica, sans-serif;
-    background: linear-gradient(135deg,#ff0050,#000);
+    background:#0d1117;
     color:white;
+    font-family:Arial;
     text-align:center;
-    padding:30px;
+    margin:0;
+    padding-top:80px;
 }
 
-/* Premium Card Design */
 .container{
-    background: rgba(0,0,0,0.65);
-    padding:30px;
-    border-radius:25px;
-    max-width:500px;
+    width:400px;
     margin:auto;
-    box-shadow:0 0 25px rgba(0,0,0,0.5);
+    padding:40px;
+    border-radius:25px;
+    background:rgba(255,255,255,0.05);
+    backdrop-filter:blur(15px);
+    box-shadow:0 0 25px black;
 }
 
-/* Input Box */
 input{
-    width:90%;
+    width:100%;
+    padding:14px;
+    margin:15px 0;
+    border-radius:10px;
+    border:none;
+    font-size:15px;
+}
+
+button{
+    width:100%;
     padding:14px;
     border:none;
-    border-radius:12px;
-    margin-top:15px;
-    font-size:16px;
-}
-
-/* Button Style */
-button{
-    margin-top:20px;
-    padding:14px 30px;
-    border:none;
-    border-radius:12px;
-    background:#00f2ea;
-    font-weight:bold;
+    border-radius:10px;
+    background:#238636;
+    color:white;
     font-size:16px;
     cursor:pointer;
-    transition:0.3s;
 }
 
 button:hover{
-    background:white;
-}
-
-/* Status Text */
-#status{
-    margin-top:20px;
-    font-weight:bold;
+    background:#2ea043;
 }
 
 </style>
@@ -67,17 +57,14 @@ button:hover{
 
 <div class="container">
 
-<h2>🔥 XG Premium TikTok Downloader</h2>
+<h2>🚀 Instagram Video Downloader</h2>
 
-<p>Paste TikTok Video Link Below</p>
+<input id="url" placeholder="Paste Instagram Video Link">
+<input id="apikey" placeholder="Enter API Key">
 
-<input type="text" id="url" placeholder="Enter TikTok Video Link">
+<button onclick="downloadVideo()">Download Video</button>
 
-<br>
-
-<button onclick="downloadVideo()">⬇ Download Now</button>
-
-<p id="status"></p>
+<p id="msg"></p>
 
 </div>
 
@@ -85,38 +72,34 @@ button:hover{
 
 async function downloadVideo(){
 
-const url = document.getElementById("url").value;
+const url=document.getElementById("url").value;
+const key=document.getElementById("apikey").value;
+const msg=document.getElementById("msg");
 
-if(!url){
-alert("Please Paste TikTok Link");
-return;
-}
+msg.innerText="Processing...";
 
-document.getElementById("status").innerText="Processing Download...";
+const res=await fetch("https://YOUR-API-URL/download",{
+method:"POST",
+headers:{
+"Content-Type":"application/json",
+"x-api-key":key
+},
+body:JSON.stringify({url})
+});
 
-const api = "https://api-26sm.onrender.com/api?url="
-+ encodeURIComponent(url)
-+ "&apikey=xg_superfast_2026";
+if(res.ok){
 
-const res = await fetch(api);
-const data = await res.json();
+const blob=await res.blob();
 
-if(data.nowm){
-
-// ⭐ Direct Download Start
-const a = document.createElement("a");
-a.href = data.nowm;
-a.download = "tiktok_video.mp4";
-document.body.appendChild(a);
+const a=document.createElement("a");
+a.href=URL.createObjectURL(blob);
+a.download="instagram_video.mp4";
 a.click();
-a.remove();
 
-document.getElementById("status").innerText="✅ Download Started!";
+msg.innerText="Download Complete ✅";
 
 }else{
-
-document.getElementById("status").innerText="❌ Video Not Found";
-
+msg.innerText="Download Failed ❌";
 }
 
 }
