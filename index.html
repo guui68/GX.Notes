@@ -1,75 +1,185 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>Instagram Video Downloader</title>
+<meta charset="UTF-8">
+<title>Instagram Downloader</title>
+
 <style>
-body{
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
 font-family:Arial;
-text-align:center;
-background:#111;
+}
+
+body{
+background:linear-gradient(135deg,#1f1c2c,#928dab);
+height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
 color:white;
-padding:50px;
+}
+
+.container{
+background:rgba(0,0,0,0.4);
+backdrop-filter:blur(15px);
+padding:40px;
+border-radius:15px;
+width:400px;
+text-align:center;
+box-shadow:0 0 20px rgba(0,0,0,0.5);
+}
+
+h1{
+margin-bottom:20px;
 }
 
 input{
-width:70%;
-padding:10px;
-font-size:16px;
+width:100%;
+padding:12px;
+border:none;
+border-radius:8px;
+margin-bottom:15px;
+font-size:15px;
 }
 
 button{
-padding:10px 20px;
-font-size:16px;
-background:#ff004f;
-color:white;
+width:100%;
+padding:12px;
 border:none;
+border-radius:8px;
+background:#ff006a;
+color:white;
+font-size:16px;
 cursor:pointer;
+transition:0.3s;
+}
+
+button:hover{
+background:#ff3d8b;
 }
 
 #result{
 margin-top:20px;
 }
+
+video{
+width:100%;
+border-radius:10px;
+margin-top:15px;
+}
+
+.downloadBtn{
+display:inline-block;
+margin-top:10px;
+background:#00c853;
+padding:10px 20px;
+border-radius:8px;
+text-decoration:none;
+color:white;
+}
+
 </style>
 </head>
 
 <body>
 
-<h1>Instagram Video Downloader</h1>
+<div class="container">
+
+<h1>Instagram Downloader</h1>
 
 <input id="url" placeholder="Paste Instagram Link">
-
-<br><br>
 
 <button onclick="download()">Download</button>
 
 <div id="result"></div>
+
+</div>
 
 <script>
 
 async function download(){
 
 let url = document.getElementById("url").value
+let result = document.getElementById("result")
 
-let api = "https://nativeig.vercel.app/api/video?postUrl=" + url
+result.innerHTML="Fetching video..."
+
+let api1 = "https://api.apify.com/v2/acts/thenetaji~instagram-video-downloader/run-sync-get-dataset-items?token=API_TOKEN"
+let api2 = "https://api.apify.com/v2/acts/thenetaji~instagram-video-downloader-reels-and-stories/run-sync-get-dataset-items?token=API_TOKEN"
+
+let body = {
+urls:[{url:url}],
+quality:"best"
+}
 
 try{
 
-let res = await fetch(api)
+let res = await fetch(api1,{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify(body)
+})
+
 let data = await res.json()
 
-let video = data.videoUrl || data.url
+let video = data[0]?.videoUrl || data[0]?.url
 
-document.getElementById("result").innerHTML = `
-<a href="${video}" target="_blank">
-<button>Download Video</button>
-</a>
-`
+if(!video){
+
+throw "fallback"
+
+}
+
+showVideo(video)
 
 }catch{
 
-document.getElementById("result").innerHTML="API Error"
+try{
+
+let res2 = await fetch(api2,{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify(body)
+})
+
+let data2 = await res2.json()
+
+let video2 = data2[0]?.videoUrl || data2[0]?.url
+
+showVideo(video2)
+
+}catch{
+
+result.innerHTML="Failed to fetch video"
 
 }
+
+}
+
+}
+
+function showVideo(video){
+
+let result = document.getElementById("result")
+
+result.innerHTML=`
+
+<video controls src="${video}"></video>
+
+<br>
+
+<a class="downloadBtn" href="${video}" download>
+Download Video
+</a>
+
+`
 
 }
 
