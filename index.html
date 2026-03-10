@@ -2,21 +2,21 @@
 
 async function download(){
 
-let url = document.getElementById("url").value
-let result = document.getElementById("result")
+const url = document.getElementById("url").value
+const result = document.getElementById("result")
 
-result.innerHTML="Loading video..."
+result.innerHTML = "Loading..."
 
-let api = "https://api.apify.com/v2/acts/thenetaji~instagram-video-downloader-reels-and-stories/run-sync-get-dataset-items?token=API_TOKEN"
+const api = "https://api.apify.com/v2/acts/thenetaji~instagram-video-downloader-reels-and-stories/run-sync-get-dataset-items?token=API_TOKEN"
 
-let body = {
+const body = {
 urls:[{url:url}],
 quality:"best"
 }
 
 try{
 
-let res = await fetch(api,{
+const res = await fetch(api,{
 method:"POST",
 headers:{
 "Content-Type":"application/json"
@@ -24,32 +24,53 @@ headers:{
 body:JSON.stringify(body)
 })
 
-let data = await res.json()
+const data = await res.json()
 
 console.log(data)
 
-let video = data[0].videoUrl || data[0].displayUrl || data[0].url
+let video =
+data[0]?.videoUrl ||
+data[0]?.url ||
+data[0]?.video ||
+data[0]?.displayUrl
 
-result.innerHTML=`
+if(!video){
 
-<video width="100%" controls>
-<source src="${video}" type="video/mp4">
-</video>
+result.innerHTML="Video not found"
+return
 
-<br><br>
+}
 
-<a href="${video}" target="_blank" download>
-<button>Download Video</button>
-</a>
+result.innerHTML = ""
 
-`
+const videoPlayer = document.createElement("video")
+videoPlayer.src = video
+videoPlayer.controls = true
+videoPlayer.style.width = "100%"
+videoPlayer.style.borderRadius = "10px"
 
-}catch{
+const downloadBtn = document.createElement("a")
+downloadBtn.href = video
+downloadBtn.target="_blank"
+downloadBtn.innerHTML = "Download Video"
+downloadBtn.style.display="block"
+downloadBtn.style.marginTop="15px"
+downloadBtn.style.padding="10px"
+downloadBtn.style.background="#00c853"
+downloadBtn.style.color="white"
+downloadBtn.style.textAlign="center"
+downloadBtn.style.borderRadius="8px"
+downloadBtn.style.textDecoration="none"
 
-result.innerHTML="Video load failed"
+result.appendChild(videoPlayer)
+result.appendChild(downloadBtn)
+
+}catch(e){
+
+result.innerHTML="API Error"
 
 }
 
 }
 
-               </script>
+  </script>
